@@ -1,0 +1,96 @@
+/* Design tokens — the single source of truth for the Loinance look.
+   Every component reads from these; no hard-coded hex values below this file. */
+
+:root {
+  /* Surfaces */
+  --paper: #f6f3ec;
+  --surface: #fffdf8;
+  --ink: #181712;
+
+  /* Text */
+  --text: #181712;
+  --text-strong: #3d3a32;
+  --text-nav: #4d4a40;
+  --text-muted: #55524a;
+  --text-soft: #6b6759;
+  --text-faint: #7f7b6f;
+  --text-fainter: #8b8779;
+  --text-ghost: #a5a094;
+
+  /* Brand */
+  --green: #2f6b45;
+  --green-deep: #1f4a2f;
+  --green-mint: #a9cf9a;
+  --green-paper: #f4f8f2;
+  --green-tint: rgba(47, 107, 69, 0.1);
+  --whatsapp: #25d366;
+
+  /* On dark surfaces */
+  --on-dark: #f6f3ec;
+  --on-dark-70: rgba(246, 243, 236, 0.62);
+  --on-dark-50: rgba(246, 243, 236, 0.5);
+  --on-dark-40: rgba(246, 243, 236, 0.4);
+  --on-dark-30: rgba(246, 243, 236, 0.34);
+  --on-dark-line: rgba(246, 243, 236, 0.15);
+  --on-dark-panel: rgba(246, 243, 236, 0.06);
+  --on-dark-panel-line: rgba(246, 243, 236, 0.14);
+
+  /* On green surfaces */
+  --on-green: #f4f8f2;
+  --on-green-75: rgba(244, 248, 242, 0.75);
+  --on-green-60: rgba(244, 248, 242, 0.6);
+  --on-green-40: rgba(244, 248, 242, 0.4);
+  --on-green-line: rgba(244, 248, 242, 0.25);
+
+  /* Lines & fills derived from ink */
+  --line-faint: rgba(24, 23, 18, 0.09);
+  --line: rgba(24, 23, 18, 0.11);
+  --line-mid: rgba(24, 23, 18, 0.16);
+  --line-strong: rgba(24, 23, 18, 0.24);
+  --fill-subtle: rgba(24, 23, 18, 0.055);
+  --hatch-light: repeating-linear-gradient(
+    135deg,
+    rgba(24, 23, 18, 0.1) 0 5px,
+    rgba(24, 23, 18, 0.03) 5px 10px
+  );
+  --hatch-dark: repeating-linear-gradient(
+    135deg,
+    rgba(246, 243, 236, 0.12) 0 5px,
+    rgba(246, 243, 236, 0.04) 5px 10px
+  );
+
+  /* Type */
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+
+  /* Radii */
+  --r-xs: 8px;
+  --r-sm: 10px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 20px;
+  --r-2xl: 24px;
+  --r-pill: 999px;
+
+  /* Layout */
+  --gutter: 56px;
+  --max-w: 1280px;
+  --header-h: 90px;
+
+  /* Effects */
+  --lift: 0 24px 50px -30px rgba(24, 23, 18, 0.5);
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@media (max-width: 900px) {
+  :root {
+    --gutter: 32px;
+  }
+}
+
+@media (max-width: 560px) {
+  :root {
+    --gutter: 20px;
+  }
+}

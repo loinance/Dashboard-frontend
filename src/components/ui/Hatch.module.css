@@ -1,0 +1,20 @@
+.hatch {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  line-height: 1.4;
+  color: var(--text-ghost);
+  text-align: center;
+}
+
+.light {
+  background: var(--hatch-light);
+}
+
+.dark {
+  background: var(--hatch-dark);
+  color: var(--on-dark-30);
+}

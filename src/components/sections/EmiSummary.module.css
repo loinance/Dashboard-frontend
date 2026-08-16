@@ -1,0 +1,87 @@
+.panel {
+  padding: 28px;
+  border: 1px solid var(--on-dark-panel-line);
+  border-radius: 18px;
+  background: var(--on-dark-panel);
+}
+
+.caption {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.1em;
+  color: var(--on-dark-50);
+}
+
+.amount {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  margin-top: 12px;
+  color: var(--green-mint);
+}
+
+.currency {
+  font-size: 28px;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.figure {
+  font-size: clamp(40px, 7vw, 56px);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.meter {
+  display: flex;
+  height: 8px;
+  margin-top: 24px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: rgba(246, 243, 236, 0.12);
+}
+
+.principal {
+  height: 100%;
+  background: var(--green-mint);
+  transition: width 0.25s var(--ease);
+}
+
+.meterLegend {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--on-dark-50);
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  margin: 20px 0 0;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  font-size: 14px;
+  line-height: 1.35;
+  color: var(--on-dark-70);
+}
+
+.row dd {
+  margin: 0;
+  color: var(--on-dark);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.cta {
+  margin-top: 24px;
+}

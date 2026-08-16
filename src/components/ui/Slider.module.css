@@ -1,0 +1,46 @@
+.slider {
+  display: flex;
+  flex-direction: column;
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.09em;
+  color: var(--on-dark-50);
+  text-transform: uppercase;
+}
+
+.value {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.range {
+  width: 100%;
+  margin: 14px 0 0;
+  accent-color: var(--green-mint);
+  cursor: pointer;
+}
+
+.bounds {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--on-dark-30);
+}

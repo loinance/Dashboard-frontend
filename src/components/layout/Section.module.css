@@ -1,0 +1,14 @@
+.section {
+  /* Sections tune their own rhythm by redefining these, so the override never
+     depends on stylesheet order. */
+  padding-top: var(--section-top, 0px);
+  padding-bottom: var(--section-bottom, 60px);
+  padding-inline: var(--gutter);
+  scroll-margin-top: var(--header-h);
+}
+
+@media (max-width: 760px) {
+  .section {
+    padding-bottom: calc(var(--section-bottom, 60px) - 12px);
+  }
+}

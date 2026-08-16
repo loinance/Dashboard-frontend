@@ -1,0 +1,13 @@
+.value {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.label {
+  margin-top: 7px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--text-faint);
+}

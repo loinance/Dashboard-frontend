@@ -1,0 +1,157 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(246, 243, 236, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line-faint);
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px var(--gutter);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  min-width: 0;
+}
+
+.logoLink {
+  color: inherit;
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  white-space: nowrap;
+}
+
+.navLink {
+  color: var(--text-nav);
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.navLink:hover {
+  color: var(--ink);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.phone {
+  color: var(--text-nav);
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+.phone:hover {
+  color: var(--ink);
+}
+
+/* Hamburger — hidden until the nav no longer fits */
+.menuToggle {
+  display: none;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--line-mid);
+  border-radius: var(--r-sm);
+}
+
+.bars,
+.bars::before,
+.bars::after {
+  position: absolute;
+  left: 50%;
+  width: 16px;
+  height: 1.5px;
+  background: var(--ink);
+  transform: translateX(-50%);
+  transition: transform 0.2s var(--ease);
+}
+
+.bars {
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.bars::before,
+.bars::after {
+  content: '';
+  left: 0;
+  transform: none;
+}
+
+.bars::before {
+  top: -5px;
+}
+
+.bars::after {
+  top: 5px;
+}
+
+.barsOpen {
+  background: transparent;
+}
+
+.barsOpen::before {
+  transform: translateY(5px) rotate(45deg);
+}
+
+.barsOpen::after {
+  transform: translateY(-5px) rotate(-45deg);
+}
+
+.mobileNav {
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px var(--gutter) 20px;
+  border-top: 1px solid var(--line-faint);
+}
+
+.mobileLink {
+  padding: 11px 0;
+  color: var(--text-nav);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.mobileLink:hover {
+  color: var(--ink);
+}
+
+@media (max-width: 1100px) {
+  .nav,
+  .phone {
+    display: none;
+  }
+
+  .menuToggle {
+    display: block;
+  }
+
+  .mobileNavOpen {
+    display: flex;
+  }
+}
+
+@media (max-width: 460px) {
+  .bar {
+    gap: 12px;
+  }
+}

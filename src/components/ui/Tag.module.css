@@ -1,0 +1,9 @@
+.tag {
+  padding: 11px 16px;
+  border-radius: var(--r-xs);
+  background: var(--fill-subtle);
+  color: var(--text-strong);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+}

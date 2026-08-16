@@ -1,0 +1,26 @@
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.input {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin: 2px 0 0;
+  accent-color: var(--green);
+  cursor: pointer;
+}
+
+.label {
+  color: var(--text-faint);
+  font-size: 11.5px;
+  line-height: 1.55;
+  cursor: pointer;
+}
+
+.label a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

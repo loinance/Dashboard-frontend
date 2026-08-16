@@ -1,0 +1,27 @@
+.logo {
+  display: inline-flex;
+  flex: none;
+}
+
+.image {
+  width: auto;
+  height: 30px;
+}
+
+/* The mark is drawn in brand blue and green, which go muddy on the ink
+   footer — a light plate keeps it legible without recolouring the brand. */
+.dark {
+  padding: 8px 12px;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+}
+
+.dark .image {
+  height: 28px;
+}
+
+@media (max-width: 460px) {
+  .image {
+    height: 26px;
+  }
+}

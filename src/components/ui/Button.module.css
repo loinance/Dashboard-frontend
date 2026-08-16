@@ -1,0 +1,112 @@
+.base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 1px solid transparent;
+  border-radius: var(--r-pill);
+  font-family: var(--font-sans);
+  white-space: nowrap;
+  text-decoration: none;
+  transition:
+    background-color 0.18s var(--ease),
+    border-color 0.18s var(--ease),
+    color 0.18s var(--ease),
+    transform 0.18s var(--ease);
+}
+
+.base:hover {
+  transform: translateY(-1px);
+}
+
+.base:active {
+  transform: none;
+}
+
+/* Sizes */
+.sm {
+  padding: 11px 20px;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.md {
+  padding: 16px 26px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.block {
+  display: flex;
+  width: 100%;
+  padding: 17px;
+  border-radius: var(--r-md);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+/* Variants */
+.solid {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.solid:hover {
+  background: color-mix(in srgb, var(--ink) 86%, var(--paper));
+  color: var(--paper);
+}
+
+.outline {
+  border-color: var(--line-strong);
+  color: var(--text);
+}
+
+.outline:hover {
+  border-color: var(--ink);
+  background: var(--fill-subtle);
+  color: var(--text);
+}
+
+.green {
+  background: var(--green);
+  color: var(--surface);
+}
+
+.green:hover {
+  background: var(--green-deep);
+  color: var(--surface);
+}
+
+.mint {
+  background: var(--green-mint);
+  color: var(--ink);
+}
+
+.mint:hover {
+  background: color-mix(in srgb, var(--green-mint) 82%, #fff);
+  color: var(--ink);
+}
+
+.paper {
+  background: var(--on-green);
+  color: var(--ink);
+}
+
+.paper:hover {
+  background: #fff;
+  color: var(--ink);
+}
+
+.outlineOnGreen {
+  border-color: var(--on-green-40);
+  color: var(--on-green);
+}
+
+.outlineOnGreen:hover {
+  border-color: var(--on-green);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--on-green);
+}

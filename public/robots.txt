@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Update the host below if the production domain changes.
+Sitemap: https://www.loinance.com/sitemap.xml
