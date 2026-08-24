@@ -1,0 +1,158 @@
+.scroller {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+
+.table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+/* Dim rather than blank while refetching — the old rows stay readable and the
+   table does not collapse and jump the page. */
+.loading {
+  opacity: 0.5;
+  transition: opacity 0.16s var(--ease);
+}
+
+.table thead th {
+  position: sticky;
+  top: 0;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line-mid);
+  background: var(--surface);
+  color: var(--text-faint);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.table tbody td {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--line-faint);
+  color: var(--text-strong);
+  vertical-align: middle;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background: var(--fill-subtle);
+}
+
+.numeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.when {
+  color: var(--text-soft);
+  white-space: nowrap;
+}
+
+.rowLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.rowLink:hover {
+  color: var(--text);
+}
+
+.name {
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.name:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.mobile {
+  color: var(--text-strong);
+  font-variant-numeric: tabular-nums;
+  text-decoration: none;
+}
+
+.mobile:hover {
+  color: var(--green);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.flag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 7px;
+  border: 1px solid var(--danger);
+  border-radius: var(--r-pill);
+  background: var(--danger-tint);
+  color: var(--danger);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: help;
+}
+
+.status {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.neutral {
+  background: var(--fill-subtle);
+  color: var(--text-muted);
+}
+
+.progress {
+  background: var(--green-tint);
+  color: var(--green-deep);
+}
+
+.good {
+  background: var(--green);
+  color: var(--on-green);
+}
+
+.bad {
+  background: var(--danger-tint);
+  color: var(--danger);
+}
+
+.empty {
+  padding: 56px 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  text-align: center;
+}
+
+.emptyTitle {
+  margin: 0;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.emptyHint {
+  margin: 6px 0 0;
+  color: var(--text-faint);
+  font-size: 13px;
+}

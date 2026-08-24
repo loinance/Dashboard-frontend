@@ -1,0 +1,255 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: var(--max-w);
+  margin: 0 auto;
+}
+
+.state {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 48px 0;
+  text-align: center;
+}
+
+.stateText {
+  margin: 0 0 12px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.back {
+  align-self: flex-start;
+  color: var(--text-faint);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--text);
+}
+
+.head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.identity {
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 34px;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.meta {
+  margin: 6px 0 0;
+  color: var(--text-faint);
+  font-size: 13.5px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.call,
+.whatsapp {
+  padding: 10px 16px;
+  border-radius: var(--r-sm);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.call {
+  border: 1px solid var(--green);
+  background: var(--green);
+  color: var(--on-green);
+}
+
+.call:hover {
+  background: var(--green-deep);
+}
+
+.whatsapp {
+  border: 1px solid var(--line-mid);
+  color: var(--text-strong);
+}
+
+.whatsapp:hover {
+  border-color: var(--line-strong);
+  color: var(--text);
+}
+
+.flags {
+  padding: 16px 18px;
+  border: 1px solid var(--danger);
+  border-radius: var(--r-md);
+  background: var(--danger-tint);
+}
+
+.flagsTitle {
+  display: block;
+  color: var(--danger);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.flagList {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  color: var(--text-strong);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.flagsNote {
+  margin: 10px 0 0;
+  color: var(--text-soft);
+  font-size: 12.5px;
+  font-style: italic;
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+.panel {
+  padding: 20px 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+
+.panelTitle {
+  margin: 0 0 16px;
+  color: var(--text-faint);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.facts {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: 12px;
+  align-items: baseline;
+}
+
+.factLabel {
+  color: var(--text-faint);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.factValue {
+  margin: 0;
+  color: var(--text);
+  font-size: 13.5px;
+  font-weight: 600;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.factValueMono {
+  composes: factValue;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.consent {
+  margin: 14px 0 0;
+  padding: 14px 16px;
+  border-left: 3px solid var(--line-mid);
+  background: var(--paper);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  color: var(--text-strong);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.notesLabel {
+  display: block;
+  margin: 16px 0 9px;
+  color: var(--text-faint);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.notes {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--line-mid);
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.55;
+  resize: vertical;
+}
+
+.notes:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px var(--green-tint);
+}
+
+.saveRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.savedNote {
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.saveError {
+  margin: 12px 0 0;
+  color: var(--danger);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+@media (max-width: 900px) {
+  .columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fact {
+    grid-template-columns: 110px minmax(0, 1fr);
+  }
+}

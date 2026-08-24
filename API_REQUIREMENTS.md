@@ -1,22 +1,32 @@
 # Loinance — Backend API Requirements
 
-**Status:** draft for implementation
+**Status:** implemented — lead capture, auth, dashboard API and Excel export are built and running
 **Owner:** Loinance Solutions Pvt Ltd
-**Last updated:** 12 August 2026
+**Last updated:** 25 August 2026
 **Consumers:** `dashboard-front` (public marketing site + internal leads dashboard)
+
+> **Scope change, 25 August 2026 — rate limiting removed.** The backend keeps
+> exactly two tables, `leads` and `users`. `submission_attempts`, `blocked_ips`
+> and `audit_log` were dropped (`drizzle/0001_drop_abuse_tables.sql`), and with
+> them the IP rate limit on `POST /api/leads`, the login brute-force throttle and
+> the audit trail. This was a deliberate decision to keep the schema minimal.
+> Sections below are written to match the code as it now stands; where a control
+> was removed, it is called out rather than quietly deleted.
 
 ---
 
 ## 1. Purpose and scope
 
-The marketing site currently captures a loan enquiry in `useApplicationForm.ts` and
-throws it away — submission is a `console.info` stub. This API replaces that stub.
+The marketing site captures a loan enquiry in `useApplicationForm.ts`, which now
+POSTs to `/api/leads`. This API is what receives it.
 
-It must do four things:
+It does four things:
 
 1. **Accept a lead** from the public site and store it durably in Postgres.
-2. **Reject junk** — bot submissions and abusive IPs — before it reaches the team,
-   so nobody wastes a callback on a fake number.
+2. **Reject obvious bots** before they reach the team, so nobody wastes a callback
+   on a fake number. Note the narrowed scope: with rate limiting removed, this is
+   now the honeypot, the timing trap, the origin check and Turnstile — nothing
+   that counts requests over time.
 3. **Authenticate staff** so leads are visible only to Loinance.
 4. **Serve the internal dashboard** — list, filter by loan type and date, and export to Excel.
 
@@ -60,10 +70,13 @@ partner-bank due diligence will ask where it lives.
 | `COOKIE_DOMAIN` | `.loinance.com` | |
 | `CORS_ORIGIN` | `https://www.loinance.com` | Comma-separated list; no wildcard |
 | `TRUST_PROXY` | `1` | **Critical** — see §5.1 |
-| `TURNSTILE_SECRET` | — | Cloudflare Turnstile server key |
-| `RATE_LIMIT_IP_HOURLY` | `3` | |
-| `RATE_LIMIT_IP_DAILY` | `10` | |
+| `TURNSTILE_SECRET` | — | Cloudflare Turnstile server key; required when `NODE_ENV=production` |
 | `LEAD_DEDUPE_WINDOW_HOURS` | `24` | |
+| `BOT_MIN_FORM_SECONDS` | `3` | Minimum seconds between form render and submit (§5.2) |
+| `SESSION_HOURS` | `8` | |
+| `EXPORT_MAX_ROWS` | `10000` | |
+| `RUN_NIGHTLY_JOBS` | `false` | Enable on exactly one instance, or drive `npm run job:nightly` from cron |
+| `LEAD_RETENTION_MONTHS` | `24` | |
 
 Secrets never appear in the repo, in the frontend bundle, or in log output.
 
@@ -130,46 +143,21 @@ create index leads_mobile_idx      on leads (mobile);
 create index leads_ip_created_idx  on leads (ip, created_at desc);
 create index leads_suspect_idx     on leads (is_suspect) where is_suspect = true;
 
--- ─────────────────────────────────────────── abuse controls
-create table blocked_ips (
-  ip          inet primary key,
-  reason      text not null,
-  blocked_by  uuid references users(id),
-  created_at  timestamptz not null default now(),
-  expires_at  timestamptz                  -- null = permanent
-);
-
-create table submission_attempts (
-  id         bigserial primary key,
-  ip         inet not null,
-  mobile     text,
-  at         timestamptz not null default now(),
-  outcome    text not null                 -- accepted|rate_limited|blocked|invalid|bot
-);
-
-create index submission_attempts_ip_at_idx on submission_attempts (ip, at desc);
-
--- ─────────────────────────────────────────── who changed what
-create table audit_log (
-  id         bigserial primary key,
-  at         timestamptz not null default now(),
-  user_id    uuid references users(id),
-  action     text not null,                -- login|lead_updated|lead_exported|ip_blocked
-  entity_id  uuid,
-  payload    jsonb,
-  ip         inet
-);
 ```
 
 **Notes on the shape**
 
-- `submission_attempts` is what makes IP rate limiting survive a restart and stay
-  correct across multiple instances. Don't hold counters in process memory.
+- These two tables are the whole schema. `blocked_ips`, `submission_attempts` and
+  `audit_log` were part of the original design and have been dropped — see the
+  scope-change note at the top.
 - `risk_flags` is an array, not a boolean, so the dashboard can show *why* a lead
   looks suspect and ops can overrule it.
-- `audit_log` records every export. Bulk PII leaving the system should be traceable
-  to a person under DPDP.
-- Prune `submission_attempts` older than 30 days on a nightly job.
+- `leads_ip_created_idx` now serves the `burst_ip` flag (§5.4), which counts recent
+  leads from the same IP directly out of this table.
+- **No audit table.** Exports, edits and deletions are written to the application
+  log (Pino) instead. That is weaker than the original design: bulk PII leaving the
+  system is no longer queryable, only greppable, and log retention is not a
+  DPDP-grade audit trail.
 
 ---
 
@@ -179,35 +167,46 @@ The stated goal is no fake calls. The design principle: **filter bots hard, flag
 suspicious humans softly.** A false rejection costs a real customer; a false flag
 costs a second of an advisor's attention.
 
+**What is actually enforced.** Four checks stand between the public internet and
+the `leads` table: the `Origin`/`Referer` check, the honeypot, the time-to-submit
+trap, and Turnstile. The first three stop naive bots and nothing else — anyone
+scripting directly against the API sets a correct `Origin`, leaves the honeypot
+empty and waits three seconds. **Turnstile is therefore the only meaningful
+protection on this endpoint**, and it must be configured before launch.
+
 ### 5.1 IP capture (must be correct first)
 
 Behind a proxy or CDN, `req.ip` returns the proxy's address unless `trust proxy`
 is configured. Every IP rule below is worthless if this is wrong.
 
 - Set `app.set('trust proxy', <exact number of proxy hops>)`. Never `true`, which
-  lets a caller forge `X-Forwarded-For` and defeat every limit here.
+  lets a caller forge `X-Forwarded-For`.
 - On Cloudflare, prefer the `CF-Connecting-IP` header.
-- Store the resolved address in `leads.ip` and on every row in `submission_attempts`,
-  including rejected ones — the rejections are the interesting data.
+- Store the resolved address in `leads.ip`. Rejected submissions are no longer
+  recorded anywhere — the attempt ledger is gone, so a rejection leaves no trace
+  beyond a log line.
 
 ### 5.2 Hard rejections (request never becomes a lead)
 
+Checks run in this order, cheapest first, so an invalid or bot submission never
+costs a query it doesn't have to:
+
 | Rule | Response |
 |---|---|
-| IP present in `blocked_ips` (unexpired) | `403 IP_BLOCKED` |
-| More than `RATE_LIMIT_IP_HOURLY` accepted leads from this IP in 1 hour | `429 RATE_LIMITED` |
-| More than `RATE_LIMIT_IP_DAILY` in 24 hours | `429 RATE_LIMITED` |
-| Honeypot field non-empty | `202` with a success-shaped body, nothing stored |
-| Submitted less than 3 seconds after form render | `202` with a success-shaped body, nothing stored |
-| Cloudflare Turnstile token missing or invalid | `400 CAPTCHA_FAILED` |
 | `Origin` / `Referer` not in `CORS_ORIGIN` | `403 BAD_ORIGIN` |
+| Honeypot field non-empty | `202` with a success-shaped body, nothing stored |
+| Submitted less than `BOT_MIN_FORM_SECONDS` after form render | `202` with a success-shaped body, nothing stored |
+| Cloudflare Turnstile token missing or invalid | `400 CAPTCHA_FAILED` |
 | Field validation failure (§7) | `422 VALIDATION_ERROR` |
 
 Bot rejections return `202` and a normal-looking success payload deliberately. A
 scraper that gets a clear error message tunes itself around the check; one that
 appears to succeed usually doesn't.
 
-Every attempt — accepted or not — writes one `submission_attempts` row.
+**Removed:** IP blocking (`403 IP_BLOCKED`) and per-IP rate limiting
+(`429 RATE_LIMITED`). There is no limit on how many leads one IP may submit, and
+nothing is recorded about rejected attempts. The `IP_BLOCKED` and `RATE_LIMITED`
+codes remain in the error enum (§10) but are never raised on this endpoint.
 
 ### 5.3 Duplicate handling
 
@@ -226,7 +225,7 @@ Written to `risk_flags` and surfaced in the dashboard as a badge:
 | `datacenter_ip` | IP belongs to a hosting/VPN ASN |
 | `foreign_ip` | Geolocation outside India — flag only, never block; NRIs and VPN users are real customers |
 | `income_implausible` | Income > ₹50L/month, or amount > 100× monthly income |
-| `burst_ip` | 2+ leads from this IP in the last hour (under the hard limit) |
+| `burst_ip` | Another lead already stored from this IP in the last hour. Counted from `leads`; a flag only — there is no hard limit to sit under any more |
 | `no_referer` | Direct POST with no `Referer` — typical of a script |
 
 Suspect leads are excluded from the default dashboard view but reachable via a
@@ -253,11 +252,13 @@ login form is the only auth surface on the public site.
 - The token is **never** returned in the response body and never touches
   `localStorage` — that's the difference between a stolen session and a safe one
   when an XSS bug eventually happens.
-- Login is rate limited to 5 attempts per IP per 15 minutes and 5 per email per 15
-  minutes. Failures return an identical message and take a constant amount of time
-  whether or not the email exists.
+- Failures return an identical message whether or not the email exists.
 - All `/api/admin/*` routes require a valid cookie; anything else returns `401`.
-- Every login and every failed attempt writes to `audit_log`.
+- **No login rate limiting.** The throttle counted `login_failed` rows in
+  `audit_log`; with that table gone, password guessing against `/api/auth/login` is
+  unlimited. Argon2id's cost is the only thing slowing an attacker down. Compensate
+  with a long, unique admin password, and reinstate a throttle before exposing the
+  login to the open internet.
 
 ---
 
@@ -291,7 +292,7 @@ Base path `/api`. All responses are JSON except the Excel export.
 
 #### `POST /api/leads`
 
-Creates a lead. Unauthenticated, rate limited, Turnstile-protected.
+Creates a lead. Unauthenticated and Turnstile-protected. **Not** rate limited.
 
 ```jsonc
 // Request
@@ -319,8 +320,7 @@ Creates a lead. Unauthenticated, rate limited, Turnstile-protected.
 { "ok": true, "id": "8f1c…", "duplicate": true }
 ```
 
-Errors: `400 CAPTCHA_FAILED`, `403 IP_BLOCKED`, `403 BAD_ORIGIN`,
-`422 VALIDATION_ERROR`, `429 RATE_LIMITED`.
+Errors: `400 CAPTCHA_FAILED`, `403 BAD_ORIGIN`, `422 VALIDATION_ERROR`.
 
 **The response must not wait on notifications.** Store the lead, commit, return —
 then fire any alert. A failing Telegram or WhatsApp call must never turn a captured
@@ -334,7 +334,7 @@ lead into an error for the customer.
 
 | Method | Path | Body | Returns |
 |---|---|---|---|
-| `POST` | `/api/auth/login` | `{email, password}` | `200 {user:{id,name,email,role}}` + cookie · `401 INVALID_CREDENTIALS` · `429` |
+| `POST` | `/api/auth/login` | `{email, password}` | `200 {user:{id,name,email,role}}` + cookie · `401 INVALID_CREDENTIALS` |
 | `POST` | `/api/auth/logout` | — | `204`, clears cookie |
 | `GET` | `/api/auth/me` | — | `200 {user}` · `401` — used by the frontend on load to decide whether to show the dashboard |
 
@@ -354,11 +354,16 @@ lead into an error for the customer.
 | `page` | int | `1` | |
 | `pageSize` | int | `25` | Max 100 |
 | `sort` | enum | `created_at:desc` | Also `created_at:asc`, `amount:desc` |
+| `view` | enum | `summary` | `full` returns every column — see below |
+
+This is **the** endpoint for reading leads in bulk. `view=full` exists so a caller
+that wants complete records does not have to list the summary and then fetch each
+`:id` separately.
 
 ```jsonc
-// 200
+// 200 — view=summary (default), 12 fields
 {
-  "data": [ { "id": "…", "createdAt": "2026-08-12T09:14:22+05:30",
+  "data": [ { "id": "…", "createdAt": "2026-08-12T03:44:22.000Z",
               "fullName": "Ramesh Kumar", "mobile": "9844493082",
               "loanType": "personal", "amount": 600000, "income": 85000,
               "employment": "salaried", "status": "new",
@@ -367,18 +372,41 @@ lead into an error for the customer.
 }
 ```
 
+`view=full` adds the remaining 12 columns to each row — `updatedAt`, the consent
+audit (`consentAt`, `consentText`, `consentVersion`), the request context (`ip`,
+`userAgent`, `referer`, `pageUrl`, `utm`) and the workflow fields (`notes`,
+`ownerId`, `firstCallAt`). The envelope is unchanged.
+
+```
+GET /api/admin/leads?from=2026-08-01&to=2026-08-25&view=full&includeSuspect=1
+```
+
+Three things `view=full` deliberately does **not** change:
+
+- **Suspect leads are still excluded** unless `includeSuspect=1` (§5.4).
+- **The result is still paginated**, max 100 per page. Read `total` / `totalPages`
+  and walk `page` to drain it. For a genuine bulk dump use the Excel export (§9),
+  which streams and does not hold the result set in memory.
+- **Auth is still required.** `view=full` returns `consentText`, `ip` and
+  `userAgent` for every row; it is logged like the export.
+
+Columns are listed explicitly in `repository.ts` rather than selected with a bare
+`select()`, so adding a column to `leads` is a deliberate decision to expose it.
+
 **Date filtering is in IST, not UTC.** "Leads from 12 August" means midnight to
 midnight Indian time; comparing raw UTC timestamps silently drops the 00:00–05:30
-window into the previous day.
+window into the previous day. `from` and `to` are both inclusive: `from=2026-08-18&to=2026-08-18`
+returns that single IST day. Timestamps go out as UTC ISO 8601 (`…Z`) — convert at
+the display layer.
 
 #### `GET /api/admin/leads/:id`
 
-Full record including `ip`, `userAgent`, `referer`, `utm`, `consentText`,
-`consentAt`, and `riskFlags`.
+Full record for one lead. Same field set as `view=full` above; use this when you
+have an id, and `view=full` when you are working from a filter.
 
 #### `PATCH /api/admin/leads/:id`
 
-Body: any of `{status, notes, ownerId, firstCallAt}`. Writes an `audit_log` row.
+Body: any of `{status, notes, ownerId, firstCallAt}`. Writes a Pino log line (§4).
 Returns the updated lead.
 
 #### `GET /api/admin/leads/stats`
@@ -386,13 +414,11 @@ Returns the updated lead.
 Counts for the dashboard header — today, this week, this month, by status, by loan
 type. Accepts the same date filters.
 
-### 8.4 Abuse management (authenticated, `admin` role)
+### 8.4 Abuse management — removed
 
-| Method | Path | Purpose |
-|---|---|---|
-| `GET` | `/api/admin/blocked-ips` | List |
-| `POST` | `/api/admin/blocked-ips` | `{ip, reason, expiresAt?}` |
-| `DELETE` | `/api/admin/blocked-ips/:ip` | Unblock |
+The `/api/admin/blocked-ips` endpoints (list, create, delete) were removed along
+with the `blocked_ips` table. The routes now return `404`. There is no way to block
+an abusive IP through the API; do it at the CDN or reverse proxy instead.
 
 ---
 
@@ -409,7 +435,8 @@ the file.
 - Streamed with the ExcelJS streaming writer — do not build the workbook in memory.
 - Hard cap 10,000 rows per export; beyond that return `413` and ask for a narrower
   date range.
-- Writes an `audit_log` entry: who exported, which filters, how many rows.
+- Writes a Pino log line: who exported, which filters, how many rows. This
+  replaced the `audit_log` entry and is not queryable — see §4.
 
 **Columns, in order:**
 
@@ -431,7 +458,9 @@ Header row bold with a frozen top row and an autofilter. Column widths set so
 nothing shows as `####`.
 
 The export contains customer PII in a file that leaves your control. Restrict it to
-authenticated staff, log every call, and don't add it to any public or shared route.
+authenticated staff and don't add it to any public or shared route. Every call is
+logged, but only to the application log — if you need a durable, queryable record
+of who exported what, the `audit_log` table has to come back.
 
 ---
 
@@ -454,12 +483,15 @@ whether an email exists.
 |---|---|
 | 400 | `BAD_REQUEST`, `CAPTCHA_FAILED` |
 | 401 | `UNAUTHENTICATED`, `INVALID_CREDENTIALS`, `SESSION_EXPIRED` |
-| 403 | `FORBIDDEN`, `IP_BLOCKED`, `BAD_ORIGIN` |
+| 403 | `FORBIDDEN`, `BAD_ORIGIN` |
 | 404 | `NOT_FOUND` |
 | 413 | `EXPORT_TOO_LARGE` |
 | 422 | `VALIDATION_ERROR` |
-| 429 | `RATE_LIMITED` (include `Retry-After`) |
 | 500 | `INTERNAL` |
+
+`IP_BLOCKED` and `RATE_LIMITED` still exist in the `ErrorCode` enum and still map
+to `403` and `429`, but nothing raises them any more. They are kept so the
+frontend's error handling keeps working if a limit is ever reinstated.
 
 ---
 
@@ -477,18 +509,43 @@ whether an email exists.
 7. **DPDP:**
    - Store `consent_text` and `consent_at` verbatim on every lead.
    - Retention: purge or anonymise leads older than 24 months via a nightly job.
-   - Support erasure on request — `DELETE /api/admin/leads/:id` (admin only, audit
-     logged) covers it manually in v1.
+   - Support erasure on request — `DELETE /api/admin/leads/:id` (admin only) covers
+     it manually in v1. The deletion is logged to Pino, not to a database table.
    - Grievance officer details already published at `/grievance`.
 8. **Backups:** nightly `pg_dump` to storage separate from the database host,
    7-day retention minimum, and a restore tested at least once before launch. An
    untested backup is a guess.
+9. **Known gaps** created by the scope change at the top of this document, listed
+   here so they are not rediscovered as surprises:
+   - `POST /api/leads` has no rate limit. A single client can insert leads as fast
+     as it can send them; Turnstile is the only thing in the way.
+   - `POST /api/auth/login` has no throttle. Password guessing is bounded only by
+     Argon2id's cost.
+   - No audit trail. Exports and deletions of personal data are not recorded in a
+     queryable form.
 
 ---
 
 ## 12. Frontend integration
 
-Routes to add to `dashboard-front`:
+### Done — lead capture
+
+`useApplicationForm.ts` POSTs to `/api/leads` through `src/lib/api.ts`, which sets
+`credentials: 'include'` and parses the §10 error shape into a typed
+`ApiRequestError`. The hook sends the honeypot (`website`), stamps `renderedAt` on
+mount, reads a Turnstile token from the `cf-turnstile-response` input when one
+exists, and captures `utm_*` params and `pageUrl`. On failure the form shows the
+server's message plus the WhatsApp and phone fallbacks.
+
+Consent lives in `src/data/site.ts` as `consent.text` — **one string that the
+checkbox renders and the request sends**, so `leads.consent_text` cannot drift from
+what was on screen. Changing the wording means bumping `consent.version`.
+
+In development `vite.config.ts` proxies `/api` to `localhost:8080`, keeping the
+browser same-origin so the session cookie behaves as it will in production.
+`VITE_API_BASE_URL` overrides this when the API is on another origin.
+
+### Not built yet — dashboard and Turnstile
 
 | Route | Access | Notes |
 |---|---|---|
@@ -502,9 +559,10 @@ Routes to add to `dashboard-front`:
 - A `401` from any call → clear local state, redirect to `/login`.
 - Export triggers a normal browser navigation/download to the export URL with the
   current filters as query params, so the download uses the same cookie.
-- `useApplicationForm.ts` changes: add the honeypot field, capture `renderedAt` on
-  mount, fetch the Turnstile token, POST to `/api/leads`, and keep the WhatsApp
-  link (`site.whatsapp`) as the visible fallback when the request fails.
+- The **Turnstile widget** still has to be mounted in the form. The token plumbing
+  is already in place; only the widget and `VITE_TURNSTILE_SITE_KEY` are missing.
+  With rate limiting removed this is no longer optional hardening — it is the only
+  real protection the lead endpoint has.
 
 ---
 
@@ -527,15 +585,36 @@ Routes to add to `dashboard-front`:
 
 ## 14. Acceptance criteria
 
-- [ ] A valid submission from the live site appears in `leads` within 2 seconds.
-- [ ] Four rapid submissions from one IP: three stored, the fourth returns `429`.
-- [ ] A submission with the honeypot filled returns success and stores nothing.
-- [ ] The same mobile submitted twice in an hour produces exactly one lead.
-- [ ] `consent: false` is rejected with `422` and nothing is stored.
-- [ ] A forged `X-Forwarded-For` header does not bypass the IP rate limit.
-- [ ] Unauthenticated `GET /api/admin/leads` returns `401`.
-- [ ] Filtering by loan type and a date range returns the same row count as the
-      export produced with those filters.
-- [ ] Mobile numbers in the exported `.xlsx` open as text, with all 10 digits.
-- [ ] The JWT cookie is `HttpOnly` and unreadable from `document.cookie`.
+Verified locally on 25 August 2026 against Postgres 16:
+
+- [x] A valid submission from the site appears in `leads` within 2 seconds.
+- [x] A submission with the honeypot filled returns success and stores nothing.
+- [x] A submission faster than `BOT_MIN_FORM_SECONDS` returns success and stores nothing.
+- [x] The same mobile submitted twice in an hour produces exactly one lead (`200 duplicate: true`).
+- [x] `consent: false` is rejected with `422` and nothing is stored.
+- [x] `consent_text` stored on the lead is byte-identical to the string rendered in the form.
+- [x] A submission with a foreign `Origin` is rejected with `403 BAD_ORIGIN`.
+- [x] Unauthenticated `GET /api/admin/leads` returns `401`.
+- [x] Mobile numbers in the exported `.xlsx` open as text, with all 10 digits.
+- [x] The JWT cookie is `HttpOnly` and unreadable from `document.cookie`.
+
+Superseded by the scope change — these no longer hold and must not be re-added as
+tests without first restoring the tables they depend on:
+
+- [~] ~~Four rapid submissions from one IP: three stored, the fourth returns `429`.~~
+      All four are now stored.
+- [~] ~~A forged `X-Forwarded-For` header does not bypass the IP rate limit.~~
+      There is no IP rate limit to bypass. `TRUST_PROXY` still matters for the
+      accuracy of `leads.ip` and the `burst_ip` flag.
+
+- [x] Filtering by loan type and a date range returns the same row count as the
+      export produced with those filters, and as `/leads/stats`. *(This was broken
+      until 25 August 2026 — `loanType`, `status` and `employment` were built as
+      `= any(<js array>)`, which drizzle expands to a tuple and Postgres rejects.
+      Every request using one of those three filters returned `500`, on the list,
+      the export and the stats endpoint alike. Fixed by switching to `inArray`.)*
+
+Still outstanding:
+
+- [ ] Turnstile is configured and rejecting tokenless submissions in production.
 - [ ] A `pg_dump` backup has been restored into a scratch database successfully.

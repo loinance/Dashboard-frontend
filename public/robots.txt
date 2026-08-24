@@ -1,5 +1,10 @@
 User-agent: *
 Allow: /
 
+# Staff-only surfaces. They are behind a login and carry `noindex` anyway, but
+# there is no reason to spend crawl budget on them or leak the paths.
+Disallow: /login
+Disallow: /leads
+
 # Update the host below if the production domain changes.
 Sitemap: https://www.loinance.com/sitemap.xml

@@ -9,15 +9,21 @@ import {
   loanTypeOptions,
   useApplicationForm,
 } from '../../hooks/useApplicationForm'
-import { site } from '../../data/site'
+import { consent as consentCopy, site } from '../../data/site'
 import { digitsOnly, formatNumber } from '../../lib/format'
 import styles from './ApplicationForm.module.css'
 
 /** The hero's lead-capture card. */
 export function ApplicationForm() {
-  const { values, setField, status, handleSubmit } = useApplicationForm()
+  const { values, setField, status, errorMessage, fieldErrors, handleSubmit } =
+    useApplicationForm()
 
   const money = (raw: string) => (raw ? formatNumber(Number(raw)) : '')
+
+  /* The consent wording is one string in `data/site.ts` because that exact
+     string is what gets stored — see the note there. Split it around the link
+     label so the privacy link stays clickable without forking the copy. */
+  const [beforeLink, afterLink] = consentCopy.text.split(consentCopy.linkLabel)
 
   return (
     <Card id="apply" raised className={styles.card}>
@@ -37,7 +43,7 @@ export function ApplicationForm() {
         </FieldGroup>
 
         <div className={styles.pair}>
-          <Field label="Amount needed">
+          <Field label="Amount needed" error={fieldErrors.amount}>
             {(id) => (
               <TextInput
                 id={id}
@@ -52,7 +58,7 @@ export function ApplicationForm() {
               />
             )}
           </Field>
-          <Field label="Monthly income">
+          <Field label="Monthly income" error={fieldErrors.income}>
             {(id) => (
               <TextInput
                 id={id}
@@ -70,7 +76,7 @@ export function ApplicationForm() {
         </div>
 
         <div className={styles.pair}>
-          <Field label="Full name">
+          <Field label="Full name" error={fieldErrors.fullName}>
             {(id) => (
               <TextInput
                 id={id}
@@ -81,7 +87,7 @@ export function ApplicationForm() {
               />
             )}
           </Field>
-          <Field label="Mobile">
+          <Field label="Mobile" error={fieldErrors.mobile}>
             {(id) => (
               <TextInput
                 id={id}
@@ -113,13 +119,28 @@ export function ApplicationForm() {
           onChange={(event) => setField('consent', event.target.checked)}
           label={
             <>
-              I agree that {site.name} may share these details with its partner
-              lenders to check my eligibility, and may contact me about this
-              enquiry by phone, WhatsApp and email. See the{' '}
-              <SmartLink href="/privacy">privacy policy</SmartLink>.
+              {beforeLink}
+              <SmartLink href={consentCopy.linkHref}>{consentCopy.linkLabel}</SmartLink>
+              {afterLink}
             </>
           }
         />
+
+        {/* §5.2 honeypot. Hidden from people and from assistive tech; a filled
+            value tells the server this was a bot. Not `display: none` — some
+            fillers skip those. */}
+        <div className={styles.honeypot} aria-hidden="true">
+          <label htmlFor="website">Website</label>
+          <input
+            id="website"
+            name="website"
+            type="text"
+            tabIndex={-1}
+            autoComplete="off"
+            value={values.website}
+            onChange={(event) => setField('website', event.target.value)}
+          />
+        </div>
 
         <Button
           type="submit"
@@ -130,6 +151,15 @@ export function ApplicationForm() {
         >
           {status === 'submitting' ? 'Sending…' : 'Request a callback'}
         </Button>
+
+        {status === 'error' && (
+          <p className={styles.error} role="alert">
+            {errorMessage}{' '}
+            {/* The lead matters more than the form. Always leave a way through. */}
+            <SmartLink href={site.whatsapp}>Message us on WhatsApp</SmartLink> or call{' '}
+            <SmartLink href={site.phoneHref}>{site.phone}</SmartLink>.
+          </p>
+        )}
 
         <p className={styles.note} role="status">
           {status === 'submitted'

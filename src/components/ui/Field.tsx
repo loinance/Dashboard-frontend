@@ -7,18 +7,26 @@ interface FieldProps {
   label: string
   /** Receives the generated id so the control can be labelled. */
   children: (id: string) => ReactNode
+  /** Server-side message for this field. Renders below the control. */
+  error?: string
   className?: string
 }
 
 /** Uppercase micro-label above a control. */
-export function Field({ label, children, className }: FieldProps) {
+export function Field({ label, children, error, className }: FieldProps) {
   const id = useId()
+  const errorId = `${id}-error`
   return (
-    <div className={cx(styles.field, className)}>
+    <div className={cx(styles.field, error && styles.invalid, className)}>
       <label className={styles.label} htmlFor={id}>
         {label}
       </label>
       {children(id)}
+      {error && (
+        <p className={styles.error} id={errorId} role="alert">
+          {error}
+        </p>
+      )}
     </div>
   )
 }

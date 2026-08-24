@@ -106,3 +106,21 @@ export const heroStats = [
   { value: '48 hrs', label: 'typical sanction time' },
   { value: '6 types', label: 'of loans handled end-to-end' },
 ]
+
+/**
+ * DPDP consent.
+ *
+ * `text` is the authority: the checkbox renders it and the same string is sent
+ * to `/api/leads` as `consentText`, where it is stored verbatim. Keeping one
+ * source means the record can never drift from what was actually on screen —
+ * the whole point of the requirement is being able to prove what was agreed to.
+ *
+ * Change the wording and you must bump `version`.
+ */
+export const consent = {
+  version: 'v1',
+  text: `I agree that ${site.name} may share these details with its partner lenders to check my eligibility, and may contact me about this enquiry by phone, WhatsApp and email. See the privacy policy.`,
+  /** Rendered as a link to `linkHref`. Must appear verbatim inside `text`. */
+  linkLabel: 'privacy policy',
+  linkHref: '/privacy',
+} as const

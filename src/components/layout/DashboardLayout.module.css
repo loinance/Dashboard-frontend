@@ -1,0 +1,131 @@
+.shell {
+  min-height: 100vh;
+  background: var(--paper);
+  display: flex;
+  flex-direction: column;
+}
+
+.gate {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: var(--paper);
+}
+
+.gateText {
+  color: var(--text-faint);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 0 var(--gutter);
+  height: 68px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  min-width: 0;
+}
+
+.logo {
+  height: 30px;
+}
+
+.logo img {
+  height: 100%;
+  width: auto;
+}
+
+.badge {
+  padding: 3px 8px;
+  border: 1px solid var(--line-mid);
+  border-radius: var(--r-pill);
+  color: var(--text-faint);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.account {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.user {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.25;
+  min-width: 0;
+}
+
+.userName {
+  color: var(--text);
+  font-size: 13.5px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.userRole {
+  color: var(--text-ghost);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.signOut {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border: 1px solid var(--line-mid);
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color 0.16s var(--ease),
+    color 0.16s var(--ease);
+}
+
+.signOut:hover {
+  border-color: var(--line-strong);
+  color: var(--text);
+}
+
+.main {
+  flex: 1;
+  padding: 28px var(--gutter) 64px;
+}
+
+@media (max-width: 560px) {
+  .header {
+    height: auto;
+    padding-block: 12px;
+    flex-wrap: wrap;
+  }
+
+  .userName {
+    max-width: 140px;
+  }
+}

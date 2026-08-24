@@ -60,3 +60,21 @@
   font-weight: 400;
   font-size: 14.5px;
 }
+
+/* Set by `Field` when the server returned a message for this control. */
+.invalid .box {
+  border-color: var(--danger);
+}
+
+.invalid .box:focus-within {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px var(--danger-tint);
+}
+
+.error {
+  margin: 0;
+  color: var(--danger);
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.4;
+}

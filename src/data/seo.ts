@@ -37,4 +37,26 @@ export const pageSeo = {
     path: '/404',
     noIndex: true,
   },
+
+  /* Staff surfaces. `noIndex` on all three, and they are kept out of
+     `public/sitemap.xml` and disallowed in `public/robots.txt` — an internal
+     tool has no business in search results. */
+  login: {
+    title: 'Staff sign in | Loinance',
+    description: 'Sign in to the Loinance leads dashboard.',
+    path: '/login',
+    noIndex: true,
+  },
+  leads: {
+    title: 'Leads | Loinance',
+    description: 'Internal leads dashboard.',
+    path: '/leads',
+    noIndex: true,
+  },
+  leadDetail: {
+    title: 'Lead | Loinance',
+    description: 'Internal lead record.',
+    path: '/leads',
+    noIndex: true,
+  },
 } satisfies Record<string, PageSeo>

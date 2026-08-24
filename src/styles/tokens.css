@@ -25,6 +25,10 @@
   --green-tint: rgba(47, 107, 69, 0.1);
   --whatsapp: #25d366;
 
+  /* Validation. Warm enough not to fight the ink palette. */
+  --danger: #a3341f;
+  --danger-tint: rgba(163, 52, 31, 0.09);
+
   /* On dark surfaces */
   --on-dark: #f6f3ec;
   --on-dark-70: rgba(246, 243, 236, 0.62);

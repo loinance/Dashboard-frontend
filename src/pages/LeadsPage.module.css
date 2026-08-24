@@ -1,0 +1,100 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: var(--max-w);
+  margin: 0 auto;
+}
+
+.head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 34px;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.subtitle {
+  margin: 6px 0 0;
+  color: var(--text-faint);
+  font-size: 13.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.export {
+  flex-shrink: 0;
+  padding: 11px 18px;
+  border: 1px solid var(--green);
+  border-radius: var(--r-sm);
+  background: var(--green);
+  color: var(--on-green);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.16s var(--ease);
+}
+
+.export:hover {
+  background: var(--green-deep);
+  border-color: var(--green-deep);
+}
+
+.error {
+  margin: 0;
+  padding: 16px 18px;
+  border: 1px solid var(--danger);
+  border-radius: var(--r-md);
+  background: var(--danger-tint);
+  color: var(--danger);
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.pageButton {
+  padding: 9px 16px;
+  border: 1px solid var(--line-mid);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--text-strong);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color 0.16s var(--ease),
+    color 0.16s var(--ease);
+}
+
+.pageButton:hover:not(:disabled) {
+  border-color: var(--line-strong);
+  color: var(--text);
+}
+
+.pageButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pageCount {
+  color: var(--text-faint);
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
