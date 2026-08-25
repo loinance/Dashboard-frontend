@@ -16,13 +16,13 @@
 .stateText {
   margin: 0 0 12px;
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: var(--t-base);
 }
 
 .back {
   align-self: flex-start;
   color: var(--text-faint);
-  font-size: 13px;
+  font-size: var(--t-sm);
   font-weight: 600;
   text-decoration: none;
 }
@@ -56,7 +56,7 @@
 .meta {
   margin: 6px 0 0;
   color: var(--text-faint);
-  font-size: 13.5px;
+  font-size: var(--t-base);
 }
 
 .actions {
@@ -69,7 +69,7 @@
 .whatsapp {
   padding: 10px 16px;
   border-radius: var(--r-sm);
-  font-size: 13.5px;
+  font-size: var(--t-base);
   font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
@@ -105,7 +105,7 @@
 .flagsTitle {
   display: block;
   color: var(--danger);
-  font-size: 13px;
+  font-size: var(--t-sm);
   font-weight: 700;
 }
 
@@ -113,14 +113,14 @@
   margin: 8px 0 0;
   padding-left: 18px;
   color: var(--text-strong);
-  font-size: 13px;
+  font-size: var(--t-sm);
   line-height: 1.6;
 }
 
 .flagsNote {
   margin: 10px 0 0;
   color: var(--text-soft);
-  font-size: 12.5px;
+  font-size: var(--t-xs);
   font-style: italic;
 }
 
@@ -141,7 +141,7 @@
 .panelTitle {
   margin: 0 0 16px;
   color: var(--text-faint);
-  font-size: 11px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -163,14 +163,14 @@
 
 .factLabel {
   color: var(--text-faint);
-  font-size: 12.5px;
+  font-size: var(--t-xs);
   font-weight: 600;
 }
 
 .factValue {
   margin: 0;
   color: var(--text);
-  font-size: 13.5px;
+  font-size: var(--t-base);
   font-weight: 600;
   min-width: 0;
   overflow-wrap: anywhere;
@@ -179,7 +179,7 @@
 .factValueMono {
   composes: factValue;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--t-xs);
   font-weight: 500;
   color: var(--text-muted);
 }
@@ -191,7 +191,7 @@
   background: var(--paper);
   border-radius: 0 var(--r-sm) var(--r-sm) 0;
   color: var(--text-strong);
-  font-size: 13px;
+  font-size: var(--t-sm);
   line-height: 1.6;
 }
 
@@ -199,7 +199,7 @@
   display: block;
   margin: 16px 0 9px;
   color: var(--text-faint);
-  font-size: 11.5px;
+  font-size: var(--t-xs);
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -213,7 +213,7 @@
   background: transparent;
   color: var(--text);
   font-family: inherit;
-  font-size: 14px;
+  font-size: var(--t-base);
   line-height: 1.55;
   resize: vertical;
 }
@@ -221,7 +221,7 @@
 .notes:focus {
   outline: none;
   border-color: var(--green);
-  box-shadow: 0 0 0 3px var(--green-tint);
+  box-shadow: var(--ring-soft);
 }
 
 .saveRow {
@@ -233,14 +233,14 @@
 
 .savedNote {
   color: var(--green);
-  font-size: 13px;
+  font-size: var(--t-sm);
   font-weight: 600;
 }
 
 .saveError {
   margin: 12px 0 0;
   color: var(--danger);
-  font-size: 13px;
+  font-size: var(--t-sm);
   font-weight: 500;
 }
 

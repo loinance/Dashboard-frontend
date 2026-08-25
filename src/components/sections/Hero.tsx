@@ -15,11 +15,14 @@ export function Hero() {
           {site.since}
         </Eyebrow>
 
+        {/* The line breaks are decorative and hidden below 900px, so each one
+            is followed by a real space — without it the words run together on
+            mobile ("application.Every"). */}
         <h1 className={styles.title}>
           One application.
-          <br />
+          <br />{' '}
           <em className={styles.accent}>Every bank</em> competing
-          <br />
+          <br />{' '}
           for your loan.
         </h1>
 

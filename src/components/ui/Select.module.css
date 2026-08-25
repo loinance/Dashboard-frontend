@@ -6,13 +6,13 @@
   border-radius: var(--r-sm);
   background: var(--surface);
   transition:
-    border-color 0.16s var(--ease),
-    box-shadow 0.16s var(--ease);
+    border-color var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease);
 }
 
 .box:focus-within {
   border-color: var(--green);
-  box-shadow: 0 0 0 3px var(--green-tint);
+  box-shadow: var(--ring-soft);
 }
 
 .select {
@@ -25,7 +25,7 @@
   background: none;
   color: var(--text);
   font-family: inherit;
-  font-size: 14px;
+  font-size: var(--t-base);
   font-weight: 600;
   line-height: 1.3;
   cursor: pointer;

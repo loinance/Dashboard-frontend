@@ -12,7 +12,7 @@
 
 .label {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--t-xs);
   font-weight: 500;
   line-height: 1.4;
   letter-spacing: 0.09em;
@@ -21,7 +21,7 @@
 }
 
 .value {
-  font-size: 24px;
+  font-size: var(--t-3xl);
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -0.02em;
@@ -40,7 +40,7 @@
   justify-content: space-between;
   margin-top: 6px;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--t-2xs);
   line-height: 1.4;
   color: var(--on-dark-30);
 }

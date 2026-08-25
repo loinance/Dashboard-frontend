@@ -8,6 +8,9 @@
 
 html {
   scroll-behavior: smooth;
+  /* Reserve the scrollbar track so short pages do not shift horizontally
+     against long ones when navigating between routes. */
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -15,10 +18,15 @@ body {
   background: var(--paper);
   color: var(--text);
   font-family: var(--font-sans);
-  font-size: 16px;
+  font-size: var(--t-lg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--green-tint);
+  color: var(--text);
 }
 
 h1,
@@ -30,10 +38,23 @@ blockquote {
   margin: 0;
 }
 
+/* Headings are short enough for the browser to balance without cost; body copy
+   only needs its last line kept from stranding a single word. Both degrade to
+   normal wrapping where unsupported. */
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
 a {
   color: var(--green);
   text-decoration: none;
-  transition: color 0.15s var(--ease);
+  transition: color var(--dur-fast) var(--ease);
 }
 
 a:hover {
@@ -49,7 +70,8 @@ button {
 }
 
 input,
-select {
+select,
+textarea {
   font-family: inherit;
   color: inherit;
 }
@@ -61,9 +83,9 @@ svg {
 }
 
 :focus-visible {
-  outline: 2px solid var(--green);
-  outline-offset: 3px;
-  border-radius: 4px;
+  outline: var(--ring-w) solid var(--ring);
+  outline-offset: var(--ring-offset);
+  border-radius: var(--r-xs);
 }
 
 @media (prefers-reduced-motion: reduce) {

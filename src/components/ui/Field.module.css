@@ -7,7 +7,7 @@
 
 .label {
   color: var(--text-faint);
-  font-size: 11.5px;
+  font-size: var(--t-xs);
   font-weight: 600;
   line-height: 1.4;
   letter-spacing: 0.04em;
@@ -23,18 +23,18 @@
   border-radius: var(--r-sm);
   background: transparent;
   transition:
-    border-color 0.16s var(--ease),
-    box-shadow 0.16s var(--ease);
+    border-color var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease);
 }
 
 .box:focus-within {
   border-color: var(--green);
-  box-shadow: 0 0 0 3px var(--green-tint);
+  box-shadow: var(--ring-soft);
 }
 
 .prefix {
   color: var(--text-faint);
-  font-size: 15px;
+  font-size: var(--t-md);
   font-weight: 600;
   line-height: 1.3;
 }
@@ -45,7 +45,7 @@
   padding: 0;
   border: none;
   background: none;
-  font-size: 15px;
+  font-size: var(--t-md);
   font-weight: 600;
   line-height: 1.3;
   color: var(--text);
@@ -58,7 +58,7 @@
 .input::placeholder {
   color: var(--text-ghost);
   font-weight: 400;
-  font-size: 14.5px;
+  font-size: var(--t-base);
 }
 
 /* Set by `Field` when the server returned a message for this control. */
@@ -68,13 +68,13 @@
 
 .invalid .box:focus-within {
   border-color: var(--danger);
-  box-shadow: 0 0 0 3px var(--danger-tint);
+  box-shadow: var(--ring-danger);
 }
 
 .error {
   margin: 0;
   color: var(--danger);
-  font-size: 12.5px;
+  font-size: var(--t-xs);
   font-weight: 500;
   line-height: 1.4;
 }

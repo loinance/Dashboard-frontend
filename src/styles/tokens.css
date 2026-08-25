@@ -2,9 +2,13 @@
    Every component reads from these; no hard-coded hex values below this file. */
 
 :root {
+  color-scheme: light;
+
   /* Surfaces */
   --paper: #f6f3ec;
+  --paper-veil: rgba(246, 243, 236, 0.92);
   --surface: #fffdf8;
+  --white: #ffffff;
   --ink: #181712;
 
   /* Text */
@@ -31,19 +35,27 @@
 
   /* On dark surfaces */
   --on-dark: #f6f3ec;
+  --on-dark-75: rgba(246, 243, 236, 0.75);
   --on-dark-70: rgba(246, 243, 236, 0.62);
+  --on-dark-60: rgba(246, 243, 236, 0.6);
+  --on-dark-55: rgba(246, 243, 236, 0.55);
   --on-dark-50: rgba(246, 243, 236, 0.5);
+  --on-dark-45: rgba(246, 243, 236, 0.45);
   --on-dark-40: rgba(246, 243, 236, 0.4);
   --on-dark-30: rgba(246, 243, 236, 0.34);
   --on-dark-line: rgba(246, 243, 236, 0.15);
   --on-dark-panel: rgba(246, 243, 236, 0.06);
+  --on-dark-fill: rgba(246, 243, 236, 0.12);
   --on-dark-panel-line: rgba(246, 243, 236, 0.14);
 
   /* On green surfaces */
   --on-green: #f4f8f2;
+  --on-green-85: rgba(244, 248, 242, 0.85);
   --on-green-75: rgba(244, 248, 242, 0.75);
   --on-green-60: rgba(244, 248, 242, 0.6);
   --on-green-40: rgba(244, 248, 242, 0.4);
+  /* Wash for a transparent control resting on a green surface. */
+  --on-green-fill: rgba(244, 248, 242, 0.08);
   --on-green-line: rgba(244, 248, 242, 0.25);
 
   /* Lines & fills derived from ink */
@@ -68,6 +80,43 @@
   --font-serif: 'Instrument Serif', Georgia, serif;
   --font-mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
 
+  /* Type scale. Integer steps only — the half-pixel sizes this replaced
+     (13.5, 12.5, 16.5) rounded differently per platform and read as a scale
+     that had never actually been designed. */
+  --t-2xs: 11px;
+  --t-xs: 12px;
+  --t-sm: 13px;
+  --t-base: 14px;
+  --t-md: 15px;
+  --t-lg: 16px;
+  --t-xl: 17px;
+  --t-2xl: 20px;
+  --t-3xl: 24px;
+
+  /* Display sizes stay fluid — they set the page's voice and must not step. */
+  --t-display-sm: clamp(28px, 3.6vw, 40px);
+  --t-display: clamp(30px, 4vw, 44px);
+  --t-display-lg: clamp(40px, 5.4vw, 70px);
+
+  --leading-tight: 1.15;
+  --leading-snug: 1.35;
+  --leading-body: 1.55;
+  --leading-loose: 1.7;
+
+  /* Spacing — 4pt rhythm. Use these for padding, gaps and stack spacing so
+     vertical rhythm is decided once rather than per component. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
   /* Radii */
   --r-xs: 8px;
   --r-sm: 10px;
@@ -82,9 +131,41 @@
   --max-w: 1280px;
   --header-h: 90px;
 
-  /* Effects */
-  --lift: 0 24px 50px -30px rgba(24, 23, 18, 0.5);
+  /* Elevation. Two-layer shadows — a tight contact shadow plus a wide ambient
+     one — because a single blur reads flat at every size. Tinted with the ink
+     hue, never neutral black, so cards sit on the paper rather than above it. */
+  --shadow-xs:
+    0 1px 2px -1px rgba(24, 23, 18, 0.1),
+    0 1px 1px -1px rgba(24, 23, 18, 0.06);
+  --shadow-sm:
+    0 2px 4px -2px rgba(24, 23, 18, 0.12),
+    0 4px 10px -6px rgba(24, 23, 18, 0.1);
+  --shadow-md:
+    0 4px 8px -4px rgba(24, 23, 18, 0.14),
+    0 18px 34px -26px rgba(24, 23, 18, 0.55);
+  --shadow-lg:
+    0 8px 16px -8px rgba(24, 23, 18, 0.16),
+    0 24px 50px -30px rgba(24, 23, 18, 0.5);
+  --lift: var(--shadow-lg);
+
+  /* Focus. One ring definition so every focusable thing agrees. */
+  --ring-w: 2px;
+  --ring-offset: 3px;
+  --ring: var(--green);
+  --ring-soft: 0 0 0 3px var(--green-tint);
+  --ring-danger: 0 0 0 3px var(--danger-tint);
+
+  /* Motion. Duration scales with how far a thing travels: a colour swap feels
+     instant, a panel crossing the viewport needs time to be read. */
+  --dur-instant: 0.1s;
+  --dur-fast: 0.16s;
+  --dur-base: 0.24s;
+  --dur-slow: 0.36s;
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-in: cubic-bezier(0.55, 0.06, 0.68, 0.19);
+  /* Slight overshoot for things that arrive — press feedback and entrances. */
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
 }
 
 @media (max-width: 900px) {

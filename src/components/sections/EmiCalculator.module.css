@@ -11,7 +11,7 @@
 
 .title {
   font-family: var(--font-serif);
-  font-size: clamp(28px, 3.6vw, 40px);
+  font-size: var(--t-display-sm);
   font-weight: 400;
   line-height: 1.1;
   letter-spacing: -0.015em;
@@ -21,8 +21,8 @@
 .lede {
   max-width: 430px;
   margin: 12px 0 30px;
-  color: rgba(246, 243, 236, 0.6);
-  font-size: 15px;
+  color: var(--on-dark-60);
+  font-size: var(--t-md);
   line-height: 1.65;
 }
 

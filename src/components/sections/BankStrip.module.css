@@ -17,7 +17,7 @@
 
 .count {
   color: var(--green);
-  font-size: 12.5px;
+  font-size: var(--t-xs);
   font-weight: 500;
   line-height: 1.35;
   white-space: nowrap;
@@ -30,4 +30,9 @@
   margin: 16px 0 0;
   padding: 0;
   list-style: none;
+}
+
+/* So the row's height is the pill's height, with nothing left to the line box. */
+.list li {
+  display: flex;
 }

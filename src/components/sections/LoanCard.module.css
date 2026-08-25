@@ -16,11 +16,11 @@
 }
 
 .eyebrow {
-  font-size: 10.5px;
+  font-size: var(--t-2xs);
 }
 
 .name {
-  font-size: 20px;
+  font-size: var(--t-2xl);
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -0.02em;
@@ -29,7 +29,7 @@
 .description {
   margin-top: 8px;
   color: var(--text-soft);
-  font-size: 14px;
+  font-size: var(--t-base);
   line-height: 1.6;
 }
 
@@ -40,7 +40,7 @@
 .cta {
   margin-top: auto;
   color: var(--green);
-  font-size: 13px;
+  font-size: var(--t-sm);
   font-weight: 600;
   line-height: 1.35;
 }

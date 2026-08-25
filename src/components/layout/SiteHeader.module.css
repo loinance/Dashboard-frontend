@@ -2,7 +2,7 @@
   position: sticky;
   top: 0;
   z-index: 20;
-  background: rgba(246, 243, 236, 0.92);
+  background: var(--paper-veil);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--line-faint);
 }
@@ -35,7 +35,7 @@
 
 .navLink {
   color: var(--text-nav);
-  font-size: 13.5px;
+  font-size: var(--t-base);
   font-weight: 500;
   line-height: 1.35;
 }
@@ -52,7 +52,7 @@
 
 .phone {
   color: var(--text-nav);
-  font-size: 13.5px;
+  font-size: var(--t-base);
   font-weight: 600;
   line-height: 1.35;
   white-space: nowrap;
@@ -81,7 +81,7 @@
   height: 1.5px;
   background: var(--ink);
   transform: translateX(-50%);
-  transition: transform 0.2s var(--ease);
+  transition: transform var(--dur-base) var(--ease);
 }
 
 .bars {
@@ -127,7 +127,7 @@
 .mobileLink {
   padding: 11px 0;
   color: var(--text-nav);
-  font-size: 15px;
+  font-size: var(--t-md);
   font-weight: 500;
 }
 

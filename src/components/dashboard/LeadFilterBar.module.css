@@ -46,12 +46,12 @@
   background: none;
   color: var(--text-faint);
   font-family: inherit;
-  font-size: 13px;
+  font-size: var(--t-sm);
   font-weight: 600;
   text-decoration: underline;
   text-underline-offset: 3px;
   cursor: pointer;
-  transition: color 0.16s var(--ease);
+  transition: color var(--dur-fast) var(--ease);
 }
 
 .clear:hover {

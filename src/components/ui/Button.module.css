@@ -8,32 +8,51 @@
   font-family: var(--font-sans);
   white-space: nowrap;
   text-decoration: none;
+  /* Keeps every button at the 44px minimum touch target even where the type
+     size alone would leave it a few pixels short. */
+  min-height: 44px;
+  /* Drops the 300ms tap delay mobile browsers reserve for double-tap zoom. */
+  touch-action: manipulation;
   transition:
-    background-color 0.18s var(--ease),
-    border-color 0.18s var(--ease),
-    color 0.18s var(--ease),
-    transform 0.18s var(--ease);
+    background-color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease),
+    box-shadow var(--dur-base) var(--ease),
+    transform var(--dur-base) var(--ease-spring);
 }
 
 .base:hover {
   transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
+/* Press reads as the button taking the weight, so it settles below its resting
+   position rather than merely returning to it. */
 .base:active {
+  transform: translateY(1px) scale(0.985);
+  box-shadow: none;
+  transition-duration: var(--dur-instant);
+}
+
+.base:disabled,
+.base[aria-disabled='true'] {
+  opacity: 0.45;
+  cursor: not-allowed;
   transform: none;
+  box-shadow: none;
 }
 
 /* Sizes */
 .sm {
   padding: 11px 20px;
-  font-size: 13.5px;
+  font-size: var(--t-base);
   font-weight: 600;
   line-height: 1.35;
 }
 
 .md {
   padding: 16px 26px;
-  font-size: 15px;
+  font-size: var(--t-md);
   font-weight: 600;
   line-height: 1.35;
 }
@@ -43,7 +62,7 @@
   width: 100%;
   padding: 17px;
   border-radius: var(--r-md);
-  font-size: 15px;
+  font-size: var(--t-md);
   font-weight: 700;
   line-height: 1.35;
 }
@@ -86,7 +105,7 @@
 }
 
 .mint:hover {
-  background: color-mix(in srgb, var(--green-mint) 82%, #fff);
+  background: color-mix(in srgb, var(--green-mint) 82%, var(--white));
   color: var(--ink);
 }
 
@@ -96,7 +115,7 @@
 }
 
 .paper:hover {
-  background: #fff;
+  background: var(--white);
   color: var(--ink);
 }
 
@@ -107,6 +126,6 @@
 
 .outlineOnGreen:hover {
   border-color: var(--on-green);
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--on-green-fill);
   color: var(--on-green);
 }

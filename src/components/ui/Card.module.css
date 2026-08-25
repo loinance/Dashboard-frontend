@@ -2,9 +2,9 @@
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
   transition:
-    transform 0.2s var(--ease),
-    box-shadow 0.2s var(--ease),
-    border-color 0.2s var(--ease);
+    transform var(--dur-base) var(--ease),
+    box-shadow var(--dur-base) var(--ease),
+    border-color var(--dur-base) var(--ease);
 }
 
 .surface {
@@ -36,6 +36,6 @@
 .link:hover {
   transform: translateY(-2px);
   border-color: var(--line-strong);
-  box-shadow: 0 18px 34px -26px rgba(24, 23, 18, 0.55);
+  box-shadow: var(--shadow-md);
   color: inherit;
 }

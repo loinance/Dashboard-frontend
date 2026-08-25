@@ -1,9 +1,13 @@
 .tag {
+  /* Inline, so the vertical padding would paint outside the line box and the
+     pills would overlap the row above once the list wraps. */
+  display: inline-flex;
+  align-items: center;
   padding: 11px 16px;
   border-radius: var(--r-xs);
   background: var(--fill-subtle);
   color: var(--text-strong);
-  font-size: 13px;
+  font-size: var(--t-sm);
   font-weight: 600;
   line-height: 1.35;
 }

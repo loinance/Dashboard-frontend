@@ -42,7 +42,7 @@
 .subtitle {
   margin: 8px 0 0;
   color: var(--text-soft);
-  font-size: 13.5px;
+  font-size: var(--t-base);
   line-height: 1.55;
 }
 
@@ -60,7 +60,7 @@
   border-radius: var(--r-sm);
   background: var(--danger-tint);
   color: var(--danger);
-  font-size: 13px;
+  font-size: var(--t-sm);
   font-weight: 500;
   line-height: 1.45;
 }
