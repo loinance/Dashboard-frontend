@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { apiUrl, ApiRequestError, getJson, queryString } from '../lib/api'
+import { ApiRequestError, downloadFile, getJson, queryString } from '../lib/api'
 import type { LeadListResponse, LeadStats } from '../data/leads'
 
 /**
@@ -8,7 +8,7 @@ import type { LeadListResponse, LeadStats } from '../data/leads'
  *
  * That makes a filtered view shareable and survivable across a refresh — an
  * advisor can send "the home loans from last week" as a link — and it means the
- * export button can be a plain anchor built from the same params.
+ * export request is built from the same params the table is showing.
  */
 export interface LeadFilters {
   q: string
@@ -140,9 +140,27 @@ export function useLeads() {
     setSearchParams({}, { replace: true })
   }, [setSearchParams])
 
-  /* A plain URL, not a fetch: the download has to be a top-level navigation so
-     the browser sends the session cookie and handles the file itself (§12). */
-  const exportUrl = apiUrl(`/api/admin/leads/export?${apiQuery(filters)}`)
+  /* Fetched rather than linked: a top-level navigation carries no
+     `Authorization` header, so on a browser using the Bearer fallback the link
+     would download the API's 401 instead of the file. */
+  const [exporting, setExporting] = useState(false)
+  const [exportError, setExportError] = useState<string | null>(null)
+
+  const exportLeads = useCallback(async () => {
+    setExporting(true)
+    setExportError(null)
+    try {
+      await downloadFile(`/api/admin/leads/export?${apiQuery(filters)}`, 'leads.csv')
+    } catch (err) {
+      setExportError(
+        err instanceof ApiRequestError
+          ? err.message
+          : "We couldn't prepare that download. Please try again.",
+      )
+    } finally {
+      setExporting(false)
+    }
+  }, [filters])
 
   const hasFilters = Object.keys(writeFilters(filters)).some((key) => key !== 'page')
 
@@ -155,7 +173,9 @@ export function useLeads() {
     stats,
     loading,
     error,
-    exportUrl,
+    exportLeads,
+    exporting,
+    exportError,
     pageSize: PAGE_SIZE,
   }
 }

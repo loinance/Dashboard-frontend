@@ -1,11 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import { getJson, postJson, setUnauthorizedHandler } from '../../lib/api'
+import { getJson, postJson, setAuthToken, setUnauthorizedHandler } from '../../lib/api'
 import { AuthContext } from '../../hooks/useAuth'
 import type { AuthStatus, AuthUser } from '../../hooks/useAuth'
 
 interface MeResponse {
   user: AuthUser
+}
+
+/** Login also hands back the JWT — see `setAuthToken` for why. */
+interface LoginResponse extends MeResponse {
+  token?: string
 }
 
 /** Owns the session. Everything below it reads state through `useAuth()`. */
@@ -16,6 +21,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   /* `setUnauthorizedHandler` is a module-level slot, so the effect below must
      not re-register on every render — the ref keeps the callback stable. */
   const clearSession = useRef(() => {
+    setAuthToken(null)
     setUser(null)
     setStatus('anonymous')
   })
@@ -49,12 +55,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const login = useCallback(async (email: string, password: string) => {
-    // A 401 here means wrong password — shown on the form, never a redirect.
-    const data = await postJson<MeResponse>(
+    // A 401 here means wrong password — shown on the form, never a redirect,
+    // and there is no stored token yet for it to invalidate.
+    const data = await postJson<LoginResponse>(
       '/api/auth/login',
       { email, password },
-      { skipAuthRedirect: true },
+      { skipAuthRedirect: true, keepToken: true },
     )
+    // Stored before the state flips, so the `/auth/me` and lead calls that the
+    // dashboard fires on mount already carry it.
+    if (data.token) setAuthToken(data.token)
     setUser(data.user)
     setStatus('authenticated')
   }, [])
@@ -64,6 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await postJson('/api/auth/logout')
     } finally {
       // Whatever the server said, this browser is done with the session.
+      setAuthToken(null)
       setUser(null)
       setStatus('anonymous')
     }

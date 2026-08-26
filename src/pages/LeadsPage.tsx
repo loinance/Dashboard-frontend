@@ -17,7 +17,9 @@ export function LeadsPage() {
     stats,
     loading,
     error,
-    exportUrl,
+    exportLeads,
+    exporting,
+    exportError,
   } = useLeads()
 
   const total = result?.total ?? 0
@@ -40,17 +42,24 @@ export function LeadsPage() {
             </p>
           </div>
 
-          {/* A plain link, not a fetch: a top-level navigation carries the
-              session cookie and lets the browser save the file (§12). */}
-          <a
+          {/* Fetched rather than linked: a navigation carries no Authorization
+              header, so the link would download a 401 wherever the session is
+              riding on the Bearer token instead of the cookie (§12). */}
+          <button
+            type="button"
             className={styles.export}
-            href={exportUrl}
-            /* Same-origin in dev via the Vite proxy, so no `download` attribute —
-               the server's Content-Disposition names the file. */
+            onClick={exportLeads}
+            disabled={exporting}
           >
-            Export to Excel
-          </a>
+            {exporting ? 'Preparing…' : 'Export to Excel'}
+          </button>
         </header>
+
+        {exportError ? (
+          <p className={styles.error} role="alert">
+            {exportError}
+          </p>
+        ) : null}
 
         <LeadStats stats={stats} />
 
