@@ -15,7 +15,7 @@
 
 ---
 
-## 1. Purpose and scope
+## 1. Purpose and scope test
 
 The marketing site captures a loan enquiry in `useApplicationForm.ts`, which now
 POSTs to `/api/leads`. This API is what receives it.
@@ -41,17 +41,17 @@ they don't force a migration later.
 
 ## 2. Technology
 
-| Concern | Choice | Note |
-|---|---|---|
-| Runtime | Node.js 22 LTS + TypeScript | Same language as the frontend |
-| Framework | Express 5 | Fastify is a fine substitute; nothing here depends on the choice |
-| Database | PostgreSQL 16+ | Supabase (`ap-south-1`, Mumbai) or any managed Postgres in India |
-| Migrations / access | Drizzle ORM | TypeScript-native migrations, no codegen step |
-| Validation | Zod | One schema per endpoint, shared shapes with the frontend where useful |
-| Password hashing | Argon2id | Not bcrypt, not SHA-anything |
-| Sessions | JWT in an httpOnly cookie | See §6 |
-| Excel export | ExcelJS (streaming writer) | See §9 |
-| Logging | Pino, with PII redaction | See §11.6 |
+| Concern             | Choice                      | Note                                                                  |
+| ------------------- | --------------------------- | --------------------------------------------------------------------- |
+| Runtime             | Node.js 22 LTS + TypeScript | Same language as the frontend                                         |
+| Framework           | Express 5                   | Fastify is a fine substitute; nothing here depends on the choice      |
+| Database            | PostgreSQL 16+              | Supabase (`ap-south-1`, Mumbai) or any managed Postgres in India      |
+| Migrations / access | Drizzle ORM                 | TypeScript-native migrations, no codegen step                         |
+| Validation          | Zod                         | One schema per endpoint, shared shapes with the frontend where useful |
+| Password hashing    | Argon2id                    | Not bcrypt, not SHA-anything                                          |
+| Sessions            | JWT in an httpOnly cookie   | See §6                                                                |
+| Excel export        | ExcelJS (streaming writer)  | See §9                                                                |
+| Logging             | Pino, with PII redaction    | See §11.6                                                             |
 
 **Data residency:** the database and any backups must stay in an Indian region.
 Leads contain name, mobile, and income — personal data under the DPDP Act, and
@@ -61,22 +61,22 @@ partner-bank due diligence will ask where it lives.
 
 ## 3. Environments
 
-| Variable | Example | Notes |
-|---|---|---|
-| `NODE_ENV` | `production` | |
-| `PORT` | `8080` | |
-| `DATABASE_URL` | `postgres://…` | SSL required in production |
-| `JWT_SECRET` | 32+ random bytes | Rotate invalidates all sessions |
-| `COOKIE_DOMAIN` | `.loinance.com` | |
-| `CORS_ORIGIN` | `https://www.loinance.com` | Comma-separated list; no wildcard |
-| `TRUST_PROXY` | `1` | **Critical** — see §5.1 |
-| `TURNSTILE_SECRET` | — | Cloudflare Turnstile server key; required when `NODE_ENV=production` |
-| `LEAD_DEDUPE_WINDOW_HOURS` | `24` | |
-| `BOT_MIN_FORM_SECONDS` | `3` | Minimum seconds between form render and submit (§5.2) |
-| `SESSION_HOURS` | `8` | |
-| `EXPORT_MAX_ROWS` | `10000` | |
-| `RUN_NIGHTLY_JOBS` | `false` | Enable on exactly one instance, or drive `npm run job:nightly` from cron |
-| `LEAD_RETENTION_MONTHS` | `24` | |
+| Variable                   | Example                    | Notes                                                                    |
+| -------------------------- | -------------------------- | ------------------------------------------------------------------------ |
+| `NODE_ENV`                 | `production`               |                                                                          |
+| `PORT`                     | `8080`                     |                                                                          |
+| `DATABASE_URL`             | `postgres://…`             | SSL required in production                                               |
+| `JWT_SECRET`               | 32+ random bytes           | Rotate invalidates all sessions                                          |
+| `COOKIE_DOMAIN`            | `.loinance.com`            |                                                                          |
+| `CORS_ORIGIN`              | `https://www.loinance.com` | Comma-separated list; no wildcard                                        |
+| `TRUST_PROXY`              | `1`                        | **Critical** — see §5.1                                                  |
+| `TURNSTILE_SECRET`         | —                          | Cloudflare Turnstile server key; required when `NODE_ENV=production`     |
+| `LEAD_DEDUPE_WINDOW_HOURS` | `24`                       |                                                                          |
+| `BOT_MIN_FORM_SECONDS`     | `3`                        | Minimum seconds between form render and submit (§5.2)                    |
+| `SESSION_HOURS`            | `8`                        |                                                                          |
+| `EXPORT_MAX_ROWS`          | `10000`                    |                                                                          |
+| `RUN_NIGHTLY_JOBS`         | `false`                    | Enable on exactly one instance, or drive `npm run job:nightly` from cron |
+| `LEAD_RETENTION_MONTHS`    | `24`                       |                                                                          |
 
 Secrets never appear in the repo, in the frontend bundle, or in log output.
 
@@ -150,7 +150,7 @@ create index leads_suspect_idx     on leads (is_suspect) where is_suspect = true
 - These two tables are the whole schema. `blocked_ips`, `submission_attempts` and
   `audit_log` were part of the original design and have been dropped — see the
   scope-change note at the top.
-- `risk_flags` is an array, not a boolean, so the dashboard can show *why* a lead
+- `risk_flags` is an array, not a boolean, so the dashboard can show _why_ a lead
   looks suspect and ops can overrule it.
 - `leads_ip_created_idx` now serves the `burst_ip` flag (§5.4), which counts recent
   leads from the same IP directly out of this table.
@@ -191,13 +191,13 @@ is configured. Every IP rule below is worthless if this is wrong.
 Checks run in this order, cheapest first, so an invalid or bot submission never
 costs a query it doesn't have to:
 
-| Rule | Response |
-|---|---|
-| `Origin` / `Referer` not in `CORS_ORIGIN` | `403 BAD_ORIGIN` |
-| Honeypot field non-empty | `202` with a success-shaped body, nothing stored |
+| Rule                                                         | Response                                         |
+| ------------------------------------------------------------ | ------------------------------------------------ |
+| `Origin` / `Referer` not in `CORS_ORIGIN`                    | `403 BAD_ORIGIN`                                 |
+| Honeypot field non-empty                                     | `202` with a success-shaped body, nothing stored |
 | Submitted less than `BOT_MIN_FORM_SECONDS` after form render | `202` with a success-shaped body, nothing stored |
-| Cloudflare Turnstile token missing or invalid | `400 CAPTCHA_FAILED` |
-| Field validation failure (§7) | `422 VALIDATION_ERROR` |
+| Cloudflare Turnstile token missing or invalid                | `400 CAPTCHA_FAILED`                             |
+| Field validation failure (§7)                                | `422 VALIDATION_ERROR`                           |
 
 Bot rejections return `202` and a normal-looking success payload deliberately. A
 scraper that gets a clear error message tunes itself around the check; one that
@@ -219,14 +219,14 @@ abuse, and it must not produce two callbacks.
 
 Written to `risk_flags` and surfaced in the dashboard as a badge:
 
-| Flag | Trigger |
-|---|---|
-| `repeated_digits` | Mobile is `9999999999`, `1234567890`, and similar patterns |
-| `datacenter_ip` | IP belongs to a hosting/VPN ASN |
-| `foreign_ip` | Geolocation outside India — flag only, never block; NRIs and VPN users are real customers |
-| `income_implausible` | Income > ₹50L/month, or amount > 100× monthly income |
-| `burst_ip` | Another lead already stored from this IP in the last hour. Counted from `leads`; a flag only — there is no hard limit to sit under any more |
-| `no_referer` | Direct POST with no `Referer` — typical of a script |
+| Flag                 | Trigger                                                                                                                                     |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `repeated_digits`    | Mobile is `9999999999`, `1234567890`, and similar patterns                                                                                  |
+| `datacenter_ip`      | IP belongs to a hosting/VPN ASN                                                                                                             |
+| `foreign_ip`         | Geolocation outside India — flag only, never block; NRIs and VPN users are real customers                                                   |
+| `income_implausible` | Income > ₹50L/month, or amount > 100× monthly income                                                                                        |
+| `burst_ip`           | Another lead already stored from this IP in the last hour. Counted from `leads`; a flag only — there is no hard limit to sit under any more |
+| `no_referer`         | Direct POST with no `Referer` — typical of a script                                                                                         |
 
 Suspect leads are excluded from the default dashboard view but reachable via a
 filter. They are never silently deleted.
@@ -267,17 +267,17 @@ login form is the only auth surface on the public site.
 Applied server-side on `POST /api/leads`. The frontend should mirror these for UX,
 but the server is the authority — client checks are bypassed with one `curl`.
 
-| Field | Rule |
-|---|---|
-| `fullName` | Required, trimmed, 2–80 chars, letters/spaces/`.`/`'`/`-` only |
-| `mobile` | Required, exactly 10 digits after stripping `+91`/`0`/spaces/dashes, must match `^[6-9]\d{9}$` |
-| `loanType` | Required, one of `personal`, `home`, `mortgage`, `car`, `business`, `credit-card` |
-| `amount` | Required integer, ₹10,000 – ₹10,00,00,000 |
-| `income` | Required integer, ₹5,000 – ₹1,00,00,000 |
-| `employment` | Required, one of `salaried`, `self-employed`, `business-owner` |
-| `consent` | Must be exactly `true`. Absent or false → `422`, no storage. |
-| `consentText` | Required, the exact string rendered to the user |
-| `utm`, `pageUrl`, `referer` | Optional, each capped at 500 chars |
+| Field                       | Rule                                                                                           |
+| --------------------------- | ---------------------------------------------------------------------------------------------- |
+| `fullName`                  | Required, trimmed, 2–80 chars, letters/spaces/`.`/`'`/`-` only                                 |
+| `mobile`                    | Required, exactly 10 digits after stripping `+91`/`0`/spaces/dashes, must match `^[6-9]\d{9}$` |
+| `loanType`                  | Required, one of `personal`, `home`, `mortgage`, `car`, `business`, `credit-card`              |
+| `amount`                    | Required integer, ₹10,000 – ₹10,00,00,000                                                      |
+| `income`                    | Required integer, ₹5,000 – ₹1,00,00,000                                                        |
+| `employment`                | Required, one of `salaried`, `self-employed`, `business-owner`                                 |
+| `consent`                   | Must be exactly `true`. Absent or false → `422`, no storage.                                   |
+| `consentText`               | Required, the exact string rendered to the user                                                |
+| `utm`, `pageUrl`, `referer` | Optional, each capped at 500 chars                                                             |
 
 The mobile is normalized to 10 bare digits **before** the dedupe check, so
 `+91 98444 93082` and `9844493082` collide correctly.
@@ -306,10 +306,14 @@ Creates a lead. Unauthenticated and Turnstile-protected. **Not** rate limited.
   "consent": true,
   "consentText": "I agree that Loinance may share these details…",
   "turnstileToken": "0.abc…",
-  "website": "",              // honeypot — must be empty
+  "website": "", // honeypot — must be empty
   "renderedAt": 1754990000000, // form render timestamp, for the §5.2 time check
   "pageUrl": "https://www.loinance.com/#apply",
-  "utm": { "source": "google", "medium": "cpc", "campaign": "personal-loan-blr" }
+  "utm": {
+    "source": "google",
+    "medium": "cpc",
+    "campaign": "personal-loan-blr",
+  },
 }
 ```
 
@@ -332,29 +336,29 @@ lead into an error for the customer.
 
 ### 8.2 Auth
 
-| Method | Path | Body | Returns |
-|---|---|---|---|
-| `POST` | `/api/auth/login` | `{email, password}` | `200 {user:{id,name,email,role}}` + cookie · `401 INVALID_CREDENTIALS` |
-| `POST` | `/api/auth/logout` | — | `204`, clears cookie |
-| `GET` | `/api/auth/me` | — | `200 {user}` · `401` — used by the frontend on load to decide whether to show the dashboard |
+| Method | Path               | Body                | Returns                                                                                     |
+| ------ | ------------------ | ------------------- | ------------------------------------------------------------------------------------------- |
+| `POST` | `/api/auth/login`  | `{email, password}` | `200 {user:{id,name,email,role}}` + cookie · `401 INVALID_CREDENTIALS`                      |
+| `POST` | `/api/auth/logout` | —                   | `204`, clears cookie                                                                        |
+| `GET`  | `/api/auth/me`     | —                   | `200 {user}` · `401` — used by the frontend on load to decide whether to show the dashboard |
 
 ### 8.3 Leads dashboard (authenticated)
 
 #### `GET /api/admin/leads`
 
-| Query param | Type | Default | Notes |
-|---|---|---|---|
-| `loanType` | csv | all | `personal,home` — matches any listed |
-| `status` | csv | all | |
-| `employment` | csv | all | |
-| `from` | ISO date | — | Inclusive, **Asia/Kolkata**, start of day |
-| `to` | ISO date | — | Inclusive, **Asia/Kolkata**, end of day |
-| `q` | string | — | Case-insensitive match on name or mobile |
-| `includeSuspect` | bool | `false` | §5.4 |
-| `page` | int | `1` | |
-| `pageSize` | int | `25` | Max 100 |
-| `sort` | enum | `created_at:desc` | Also `created_at:asc`, `amount:desc` |
-| `view` | enum | `summary` | `full` returns every column — see below |
+| Query param      | Type     | Default           | Notes                                     |
+| ---------------- | -------- | ----------------- | ----------------------------------------- |
+| `loanType`       | csv      | all               | `personal,home` — matches any listed      |
+| `status`         | csv      | all               |                                           |
+| `employment`     | csv      | all               |                                           |
+| `from`           | ISO date | —                 | Inclusive, **Asia/Kolkata**, start of day |
+| `to`             | ISO date | —                 | Inclusive, **Asia/Kolkata**, end of day   |
+| `q`              | string   | —                 | Case-insensitive match on name or mobile  |
+| `includeSuspect` | bool     | `false`           | §5.4                                      |
+| `page`           | int      | `1`               |                                           |
+| `pageSize`       | int      | `25`              | Max 100                                   |
+| `sort`           | enum     | `created_at:desc` | Also `created_at:asc`, `amount:desc`      |
+| `view`           | enum     | `summary`         | `full` returns every column — see below   |
 
 This is **the** endpoint for reading leads in bulk. `view=full` exists so a caller
 that wants complete records does not have to list the summary and then fetch each
@@ -363,12 +367,26 @@ that wants complete records does not have to list the summary and then fetch eac
 ```jsonc
 // 200 — view=summary (default), 12 fields
 {
-  "data": [ { "id": "…", "createdAt": "2026-08-12T03:44:22.000Z",
-              "fullName": "Ramesh Kumar", "mobile": "9844493082",
-              "loanType": "personal", "amount": 600000, "income": 85000,
-              "employment": "salaried", "status": "new",
-              "isSuspect": false, "riskFlags": [], "source": "hero" } ],
-  "page": 1, "pageSize": 25, "total": 143, "totalPages": 6
+  "data": [
+    {
+      "id": "…",
+      "createdAt": "2026-08-12T03:44:22.000Z",
+      "fullName": "Ramesh Kumar",
+      "mobile": "9844493082",
+      "loanType": "personal",
+      "amount": 600000,
+      "income": 85000,
+      "employment": "salaried",
+      "status": "new",
+      "isSuspect": false,
+      "riskFlags": [],
+      "source": "hero",
+    },
+  ],
+  "page": 1,
+  "pageSize": 25,
+  "total": 143,
+  "totalPages": 6,
 }
 ```
 
@@ -440,19 +458,19 @@ the file.
 
 **Columns, in order:**
 
-| # | Header | Format |
-|---|---|---|
-| 1 | Date | `dd-mm-yyyy hh:mm` IST |
-| 2 | Name | Text |
-| 3 | Mobile | **Text**, not number — a leading digit must never be eaten and it must not render as `9.84449E+09` |
-| 4 | Loan Type | Display label (`Personal loan`, not `personal`) |
-| 5 | Amount (₹) | Number, `#,##,##0` Indian grouping |
-| 6 | Monthly Income (₹) | Number, `#,##,##0` |
-| 7 | Employment | Display label |
-| 8 | Status | Display label |
-| 9 | Source | Text |
-| 10 | Flags | Comma-joined `riskFlags` |
-| 11 | Notes | Text |
+| #   | Header             | Format                                                                                             |
+| --- | ------------------ | -------------------------------------------------------------------------------------------------- |
+| 1   | Date               | `dd-mm-yyyy hh:mm` IST                                                                             |
+| 2   | Name               | Text                                                                                               |
+| 3   | Mobile             | **Text**, not number — a leading digit must never be eaten and it must not render as `9.84449E+09` |
+| 4   | Loan Type          | Display label (`Personal loan`, not `personal`)                                                    |
+| 5   | Amount (₹)         | Number, `#,##,##0` Indian grouping                                                                 |
+| 6   | Monthly Income (₹) | Number, `#,##,##0`                                                                                 |
+| 7   | Employment         | Display label                                                                                      |
+| 8   | Status             | Display label                                                                                      |
+| 9   | Source             | Text                                                                                               |
+| 10  | Flags              | Comma-joined `riskFlags`                                                                           |
+| 11  | Notes              | Text                                                                                               |
 
 Header row bold with a frozen top row and an autofilter. Column widths set so
 nothing shows as `####`.
@@ -471,23 +489,26 @@ One shape everywhere, so the frontend has a single error path:
 ```jsonc
 {
   "ok": false,
-  "error": { "code": "VALIDATION_ERROR", "message": "Enter a valid 10-digit mobile number.",
-             "fields": { "mobile": "Must start with 6, 7, 8 or 9." } }
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Enter a valid 10-digit mobile number.",
+    "fields": { "mobile": "Must start with 6, 7, 8 or 9." },
+  },
 }
 ```
 
 `message` is safe to show a user directly. Never leak SQL errors, stack traces, or
 whether an email exists.
 
-| HTTP | Codes |
-|---|---|
-| 400 | `BAD_REQUEST`, `CAPTCHA_FAILED` |
-| 401 | `UNAUTHENTICATED`, `INVALID_CREDENTIALS`, `SESSION_EXPIRED` |
-| 403 | `FORBIDDEN`, `BAD_ORIGIN` |
-| 404 | `NOT_FOUND` |
-| 413 | `EXPORT_TOO_LARGE` |
-| 422 | `VALIDATION_ERROR` |
-| 500 | `INTERNAL` |
+| HTTP | Codes                                                       |
+| ---- | ----------------------------------------------------------- |
+| 400  | `BAD_REQUEST`, `CAPTCHA_FAILED`                             |
+| 401  | `UNAUTHENTICATED`, `INVALID_CREDENTIALS`, `SESSION_EXPIRED` |
+| 403  | `FORBIDDEN`, `BAD_ORIGIN`                                   |
+| 404  | `NOT_FOUND`                                                 |
+| 413  | `EXPORT_TOO_LARGE`                                          |
+| 422  | `VALIDATION_ERROR`                                          |
+| 500  | `INTERNAL`                                                  |
 
 `IP_BLOCKED` and `RATE_LIMITED` still exist in the `ErrorCode` enum and still map
 to `403` and `429`, but nothing raises them any more. They are kept so the
@@ -547,11 +568,11 @@ browser same-origin so the session cookie behaves as it will in production.
 
 ### Not built yet — dashboard and Turnstile
 
-| Route | Access | Notes |
-|---|---|---|
-| `/login` | Public | Email + password. On `200`, cookie is set; redirect to `/leads`. |
-| `/leads` | Protected | Table, filters, export button. |
-| `/leads/:id` | Protected | Detail drawer or page. |
+| Route        | Access    | Notes                                                            |
+| ------------ | --------- | ---------------------------------------------------------------- |
+| `/login`     | Public    | Email + password. On `200`, cookie is set; redirect to `/leads`. |
+| `/leads`     | Protected | Table, filters, export button.                                   |
+| `/leads/:id` | Protected | Detail drawer or page.                                           |
 
 - Every request uses `credentials: 'include'`. There is no token to attach —
   the cookie handles it.
@@ -571,12 +592,14 @@ browser same-origin so the session cookie behaves as it will in production.
 **Phase 1 — this document.** Lead capture, anti-junk, login, dashboard, filters, Excel.
 
 **Phase 2.**
+
 - Instant alerts on new leads: Telegram bot first (free, ~10 minutes), WhatsApp
   Cloud API once Meta business verification clears.
 - Realtime dashboard updates via SSE or Supabase Realtime, replacing polling.
 - SLA countdown against the "call within the hour" promise, with breach escalation.
 
 **Phase 3.**
+
 - OTP verification of the mobile, if and only if measured junk rates justify it.
 - Per-advisor assignment and call logging (`lead_events` table).
 - Partial-lead capture on mobile-field blur, to recover consent-checkbox drop-offs.
@@ -602,17 +625,17 @@ Superseded by the scope change — these no longer hold and must not be re-added
 tests without first restoring the tables they depend on:
 
 - [~] ~~Four rapid submissions from one IP: three stored, the fourth returns `429`.~~
-      All four are now stored.
+  All four are now stored.
 - [~] ~~A forged `X-Forwarded-For` header does not bypass the IP rate limit.~~
-      There is no IP rate limit to bypass. `TRUST_PROXY` still matters for the
-      accuracy of `leads.ip` and the `burst_ip` flag.
+  There is no IP rate limit to bypass. `TRUST_PROXY` still matters for the
+  accuracy of `leads.ip` and the `burst_ip` flag.
 
 - [x] Filtering by loan type and a date range returns the same row count as the
-      export produced with those filters, and as `/leads/stats`. *(This was broken
+      export produced with those filters, and as `/leads/stats`. _(This was broken
       until 25 August 2026 — `loanType`, `status` and `employment` were built as
       `= any(<js array>)`, which drizzle expands to a tuple and Postgres rejects.
       Every request using one of those three filters returned `500`, on the list,
-      the export and the stats endpoint alike. Fixed by switching to `inArray`.)*
+      the export and the stats endpoint alike. Fixed by switching to `inArray`.)_
 
 Still outstanding:
 
